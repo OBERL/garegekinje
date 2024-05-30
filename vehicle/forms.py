@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from . import models
+from .models import Customer, Request
 
 class CustomerUserForm(forms.ModelForm):
     class Meta:
@@ -84,3 +85,12 @@ class ContactusForm(forms.Form):
     Name = forms.CharField(max_length=30)
     Email = forms.EmailField()
     Message = forms.CharField(max_length=500,widget=forms.Textarea(attrs={'rows': 3, 'cols': 30}))
+
+class TargetDistanceForm(forms.ModelForm):
+    customer=forms.ModelChoiceField(queryset=models.Customer.objects.all(),empty_label="Customer Name",to_field_name='id')
+    vehicle_no = forms.IntegerField(label='Vehicle Number')
+    target_distance = forms.IntegerField(label='Target Distance')
+
+    class Meta:
+        model = Request
+        fields = ['customer', 'vehicle_no', 'target_distance']

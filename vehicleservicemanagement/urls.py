@@ -31,6 +31,8 @@ urlpatterns = [
     path('delete-customer/<int:pk>', views.delete_customer_view,name='delete-customer'),
     path('update-customer/<int:pk>', views.update_customer_view,name='update-customer'),
     path('admin-add-customer', views.admin_add_customer_view,name='admin-add-customer'),
+    path('admin-add-distance',views.admin_add_distance_view,name='admin-add-distance'),
+    path('admin-view-distance',views.admin_view_distance_view,name='admin-view-distance'),
     path('admin-view-customer-enquiry', views.admin_view_customer_enquiry_view,name='admin-view-customer-enquiry'),
     path('admin-view-customer-invoice', views.admin_view_customer_invoice_view,name='admin-view-customer-invoice'),
 

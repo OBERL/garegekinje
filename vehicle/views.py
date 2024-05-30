@@ -4,8 +4,15 @@ from django.db.models import Sum
 from django.contrib.auth.models import Group
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required,user_passes_test
+from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.db.models import Q
+from .firebase_config import db
+from django.http import JsonResponse
+from .firebase_utils import get_current_distance 
+from .models import Request
+import json
+from .forms import TargetDistanceForm
 
 def home_view(request):
     if request.user.is_authenticated:
@@ -172,6 +179,39 @@ def admin_add_customer_view(request):
             my_customer_group[0].user_set.add(user)
         return HttpResponseRedirect('/admin-view-customer')
     return render(request,'vehicle/admin_add_customer.html',context=mydict)
+
+@login_required(login_url='adminlogin')
+def admin_add_distance_view(request):
+    if request.method == 'POST':
+        form = TargetDistanceForm(request.POST)
+        if form.is_valid():
+            customer = form.cleaned_data['customer']
+            vehicle_no = form.cleaned_data['vehicle_no']
+            target_distance = form.cleaned_data['target_distance']
+            request_obj, created = Request.objects.get_or_create(
+                customer=customer,
+                vehicle_no=vehicle_no,
+                defaults={'target_distance': target_distance}
+            )
+            if not created:
+                request_obj.target_distance = target_distance
+                request_obj.save()
+            return redirect('vehicle/admin_view_distance.html')
+    else:
+        form = TargetDistanceForm()
+    return render(request, 'vehicle/admin_add_distance.html', {'form': form}) 
+
+
+@login_required(login_url='adminlogin')
+def admin_view_distance_view(request):
+    requests = Request.objects.all()
+    for request_obj in requests:
+        current_distance = get_current_distance(request_obj.id)  # Fetch current distance from Firebase
+        if current_distance is not None:
+            request_obj.current_distance = current_distance
+            request_obj.save()
+
+    return render(request, 'vehicle/admin_view_distance.html', {'requests': requests})       
 
 
 @login_required(login_url='adminlogin')
@@ -749,3 +789,10 @@ def contactus_view(request):
             send_mail(str(name)+' || '+str(email),message,settings.EMAIL_HOST_USER, settings.EMAIL_RECEIVING_USER, fail_silently = False)
             return render(request, 'vehicle/contactussuccess.html')
     return render(request, 'vehicle/contactus.html', {'form':sub})
+
+
+
+#============================================================================================
+# distance data start
+#============================================================================================
+

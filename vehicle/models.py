@@ -52,8 +52,15 @@ class Request(models.Model):
     stat=(('Pending','Pending'),('Approved','Approved'),('Repairing','Repairing'),('Repairing Done','Repairing Done'),('Released','Released'))
     status=models.CharField(max_length=50,choices=stat,default='Pending',null=True)
 
+    current_distance = models.PositiveIntegerField(default=0)
+    target_distance = models.PositiveIntegerField(null=True, blank=True)
+
     def __str__(self):
         return self.problem_description
+
+    def check_and_send_reminder(self):
+        if self.target_distance and self.current_distance >= 0.75 * self.target_distance:
+            self.send_reminder()    
 
 class Attendance(models.Model):
     mechanic=models.ForeignKey('Mechanic',on_delete=models.CASCADE,null=True)
@@ -64,3 +71,10 @@ class Feedback(models.Model):
     date=models.DateField(auto_now=True)
     by=models.CharField(max_length=40)
     message=models.CharField(max_length=500)
+
+def send_reminder(self):
+        subject = 'Vehicle Maintenance Reminder'
+        message = f"Dear {self.customer.get_name},\n\nYour vehicle is 75% to the target distance. Please check."
+        recipient_list = [self.customer.user.email]
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
+

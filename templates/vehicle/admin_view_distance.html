@@ -1,0 +1,48 @@
+{% extends 'vehicle/adminbase.html' %}
+{% block content %}
+
+	<!-- main content -->
+	<div class="wrapper">
+
+<!-- ****** table  start ********** -->
+		<div class="row">
+			<div class="col-12 col-m-12 col-sm-12">
+				<div class="card">
+					<div class="card-header">
+						<h3 style="color:red; text-align:center" >THE DISTANCE DATA
+						</h3>
+
+					</div>
+					<div class="card-content">
+						<table>
+							<thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Vehicle Number</th>
+                                    <th>Current Distance</th>
+                                    <th>Target Distance</th>
+                                </tr>
+							</thead>
+							<tbody>
+                                {% for request_obj in requests %}
+                <tr>
+
+                    <td>{{ request_obj.customer.get_name }}</td>
+                    <td>{{ request_obj.vehicle_no }}</td>
+                    <td>{{ request_obj.current_distance }}</td>
+                    <td>{{ request_obj.target_distance }}</td>
+                  
+                </tr>
+                {% endfor %}
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+<!-- ****** table start ********** -->
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+	</div>
+	<!-- end main content -->
+{% endblock content %}
