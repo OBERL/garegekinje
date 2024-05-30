@@ -34,7 +34,7 @@ class Mechanic(models.Model):
 
 
 class Request(models.Model):
-    cat=(('two wheeler with gear','two wheeler with gear'),('two wheeler without gear','two wheeler without gear'),('three wheeler','three wheeler'),('four wheeler','four wheeler'))
+    cat=(('Motorcycle','Motorcycle'),('Bajaj','Bajaj'),('Automatic Car','Automatic Car'),('Manual Car','Manual Car'))
     category=models.CharField(max_length=50,choices=cat)
 
     vehicle_no=models.PositiveIntegerField(null=False)
