@@ -3,6 +3,15 @@ from django.contrib.auth.models import User
 from . import models
 from .models import Customer, Request
 
+PROBLEM_CHOICES = [
+    ("Engine oil and oil filter", "Engine oil and oil filter"),
+    ("Lights, tyres, bodywork and exhausts", "Lights, tyres, bodywork and exhausts"),
+    ("Brakes and steering", "Brakes and steering"),
+    ("Fluid and coolant levels", "Fluid and coolant levels"),
+    ("Suspension", "Suspension"),
+    ("Car battery", "Car battery"),
+]
+
 class CustomerUserForm(forms.ModelForm):
     class Meta:
         model=User
@@ -35,12 +44,15 @@ class MechanicSalaryForm(forms.Form):
 
 
 class RequestForm(forms.ModelForm):
+    problem_description = forms.MultipleChoiceField(
+        choices=PROBLEM_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+        label="Select the issues",
+    )
+
     class Meta:
-        model=models.Request
-        fields=['category','vehicle_no','vehicle_name','vehicle_model','vehicle_brand','problem_description']
-        widgets = {
-        'problem_description':forms.Textarea(attrs={'rows': 3, 'cols': 30})
-        }
+        model = Request
+        fields = ['category', 'vehicle_no', 'vehicle_name', 'vehicle_model', 'vehicle_brand', 'problem_description']
 
 class AdminRequestForm(forms.Form):
     #to_field_name value will be stored when form is submitted.....__str__ method of customer model will be shown there in html

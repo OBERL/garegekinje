@@ -10,9 +10,9 @@ from django.db.models import Q
 from .firebase_config import db
 from django.http import JsonResponse
 from .firebase_utils import get_current_distance 
-from .models import Request
+from .models import Request, Customer
 import json
-from .forms import TargetDistanceForm
+from .forms import TargetDistanceForm, RequestForm, AdminRequestForm, AdminApproveRequestForm
 
 def home_view(request):
     if request.user.is_authenticated:
@@ -391,23 +391,32 @@ def admin_delete_request_view(request,pk):
 
 @login_required(login_url='adminlogin')
 def admin_add_request_view(request):
-    enquiry=forms.RequestForm()
-    adminenquiry=forms.AdminRequestForm()
-    mydict={'enquiry':enquiry,'adminenquiry':adminenquiry}
-    if request.method=='POST':
-        enquiry=forms.RequestForm(request.POST)
-        adminenquiry=forms.AdminRequestForm(request.POST)
-        if enquiry.is_valid() and adminenquiry.is_valid():
-            enquiry_x=enquiry.save(commit=False)
-            enquiry_x.customer=adminenquiry.cleaned_data['customer']
-            enquiry_x.mechanic=adminenquiry.cleaned_data['mechanic']
-            enquiry_x.cost=adminenquiry.cleaned_data['cost']
-            enquiry_x.status='Approved'
-            enquiry_x.save()
-        else:
-            print("form is invalid")
-        return HttpResponseRedirect('admin-view-request')
-    return render(request,'vehicle/admin_add_request.html',context=mydict)
+    enquiry_form = RequestForm()
+    admin_enquiry_form = AdminRequestForm()
+
+    if request.method == 'POST':
+        enquiry_form = RequestForm(request.POST)
+        admin_enquiry_form = AdminRequestForm(request.POST)
+
+        if enquiry_form.is_valid() and admin_enquiry_form.is_valid():
+            problem_description_list = enquiry_form.cleaned_data['problem_description']
+            problem_description_str = ', '.join(problem_description_list)
+
+            enquiry_instance = enquiry_form.save(commit=False)
+            enquiry_instance.problem_description = problem_description_str
+            enquiry_instance.customer = admin_enquiry_form.cleaned_data['customer']
+            enquiry_instance.mechanic = admin_enquiry_form.cleaned_data['mechanic']
+            enquiry_instance.cost = admin_enquiry_form.cleaned_data['cost']
+            enquiry_instance.status = 'Approved'
+            enquiry_instance.save()
+
+            return redirect('admin-view-request')
+
+    context = {
+        'enquiry': enquiry_form,
+        'adminenquiry': admin_enquiry_form,
+    }
+    return render(request, 'vehicle/admin_add_request.html', context)
 
 @login_required(login_url='adminlogin')
 def admin_approve_request_view(request):
@@ -415,20 +424,25 @@ def admin_approve_request_view(request):
     return render(request,'vehicle/admin_approve_request.html',{'enquiry':enquiry})
 
 @login_required(login_url='adminlogin')
-def approve_request_view(request,pk):
-    adminenquiry=forms.AdminApproveRequestForm()
-    if request.method=='POST':
-        adminenquiry=forms.AdminApproveRequestForm(request.POST)
-        if adminenquiry.is_valid():
-            enquiry_x=models.Request.objects.get(id=pk)
-            enquiry_x.mechanic=adminenquiry.cleaned_data['mechanic']
-            enquiry_x.cost=adminenquiry.cleaned_data['cost']
-            enquiry_x.status=adminenquiry.cleaned_data['status']
-            enquiry_x.save()
-        else:
-            print("form is invalid")
-        return HttpResponseRedirect('/admin-approve-request')
-    return render(request,'vehicle/admin_approve_request_details.html',{'adminenquiry':adminenquiry})
+def approve_request_view(request, pk):
+    admin_enquiry_form = AdminApproveRequestForm()
+
+    if request.method == 'POST':
+        admin_enquiry_form = AdminApproveRequestForm(request.POST)
+
+        if admin_enquiry_form.is_valid():
+            enquiry_instance = Request.objects.get(id=pk)
+            enquiry_instance.mechanic = admin_enquiry_form.cleaned_data['mechanic']
+            enquiry_instance.cost = admin_enquiry_form.cleaned_data['cost']
+            enquiry_instance.status = admin_enquiry_form.cleaned_data['status']
+            enquiry_instance.save()
+
+            return redirect('/admin-approve-request')
+
+    context = {
+        'adminenquiry': admin_enquiry_form,
+    }
+    return render(request, 'vehicle/admin_approve_request_details.html', context)
 
 
 
@@ -588,19 +602,28 @@ def customer_view_approved_request_invoice_view(request):
 @login_required(login_url='customerlogin')
 @user_passes_test(is_customer)
 def customer_add_request_view(request):
-    customer=models.Customer.objects.get(user_id=request.user.id)
-    enquiry=forms.RequestForm()
-    if request.method=='POST':
-        enquiry=forms.RequestForm(request.POST)
-        if enquiry.is_valid():
-            customer=models.Customer.objects.get(user_id=request.user.id)
-            enquiry_x=enquiry.save(commit=False)
-            enquiry_x.customer=customer
-            enquiry_x.save()
-        else:
-            print("form is invalid")
-        return HttpResponseRedirect('customer-dashboard')
-    return render(request,'vehicle/customer_add_request.html',{'enquiry':enquiry,'customer':customer})
+    customer = Customer.objects.get(user_id=request.user.id)
+    enquiry_form = RequestForm()
+
+    if request.method == 'POST':
+        enquiry_form = RequestForm(request.POST)
+
+        if enquiry_form.is_valid():
+            problem_description_list = enquiry_form.cleaned_data['problem_description']
+            problem_description_str = ', '.join(problem_description_list)
+
+            enquiry_instance = enquiry_form.save(commit=False)
+            enquiry_instance.problem_description = problem_description_str
+            enquiry_instance.customer = customer
+            enquiry_instance.save()
+
+            return redirect('customer-dashboard')
+
+    context = {
+        'enquiry': enquiry_form,
+        'customer': customer,
+    }
+    return render(request, 'vehicle/customer_add_request.html', context)
 
 
 @login_required(login_url='customerlogin')

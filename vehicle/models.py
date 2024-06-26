@@ -42,7 +42,7 @@ class Request(models.Model):
     vehicle_model = models.CharField(max_length=40,null=False)
     vehicle_brand = models.CharField(max_length=40,null=False)
 
-    problem_description = models.CharField(max_length=500,null=False)
+    problem_description = models.TextField(null=True)
     date=models.DateField(auto_now=True)
     cost=models.PositiveIntegerField(null=True)
 

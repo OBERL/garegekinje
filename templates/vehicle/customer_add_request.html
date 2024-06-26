@@ -39,10 +39,10 @@
 <br><br><br><br><br>
 <h1 style="text-align:center;">MAKE REQUEST</h1>
 <div>
-  <form method="post" style="margin-left:200px;margin-right:200px;">
-      {% csrf_token %}
+  <form method="post" style="margin-left:200px; margin-right:200px;">
+    {% csrf_token %}
     <label for="category">Vehicle Category</label>
-    {% render_field enquiry.category class="form-control"  %}<br>
+    {% render_field enquiry.category class="form-control" %}<br>
 
     <label for="vehicle_no">Vehicle Number</label>
     {% render_field enquiry.vehicle_no class="form-control" placeholder="Vehicle Number" %}
@@ -57,9 +57,13 @@
     {% render_field enquiry.vehicle_model class="form-control" placeholder="Vehicle Model" %}
 
     <label for="problem_description">Problem Description</label>
-    {% render_field enquiry.problem_description class="form-control" placeholder="Problem Description" %}
-
-
+    <div>
+      {% for checkbox in enquiry.problem_description %}
+        <label>
+          {{ checkbox.tag }} {{ checkbox.choice_label }}
+        </label><br>
+      {% endfor %}
+    </div>
 
     <input type="submit" value="Submit">
   </form>
