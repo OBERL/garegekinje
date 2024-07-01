@@ -29,8 +29,8 @@
 
                     <td>{{ request_obj.customer.get_name }}</td>
                     <td>{{ request_obj.vehicle_no }}</td>
-                    <td id="distance-{{ request_obj.vehicle_no }}">Loading...</td>
-                    <td>{{ request_obj.target_distance }}</td>
+                    <td id="current-distance-{{ request_obj.vehicle_no }}">Loading...</td>
+                    <td id="target-distance-{{ request_obj.vehicle_no }}">Loading...</td>
                   
                 </tr>
                 {% endfor %}
@@ -45,38 +45,68 @@
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 	</div>
 
+
+
 	<script type="module">
 		import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 		import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 	
-		// Firebase configuration
+
 		const firebaseConfig = {
-			apiKey: "AIzaSyBOCbL9QLjeHMhamRgBIjm-AyLuJ1UfwKY",
-			authDomain: "sasrws-bd7d0.firebaseapp.com",
-			databaseURL: "https://sasrws-bd7d0-default-rtdb.firebaseio.com",
-			projectId: "sasrws-bd7d0",
-			storageBucket: "sasrws-bd7d0.appspot.com",
-			messagingSenderId: "164429556640",
-			appId: "1:164429556640:web:304fa251db8d3b4f0292c5",
-			measurementId: "G-VNSEBZS8R5"
-		};
+	         apiKey: "AIzaSyBOCbL9QLjeHMhamRgBIjm-AyLuJ1UfwKY",
+	         authDomain: "sasrws-bd7d0.firebaseapp.com",
+	         databaseURL: "https://sasrws-bd7d0-default-rtdb.firebaseio.com",
+	         projectId: "sasrws-bd7d0",
+	         storageBucket: "sasrws-bd7d0.appspot.com",
+	         messagingSenderId: "164429556640",
+	         appId: "1:164429556640:web:304fa251db8d3b4f0292c5",
+	         measurementId: "G-VNSEBZS8R5"
+};
 	
-		// Initialize Firebase
+
 		const app = initializeApp(firebaseConfig);
 		const db = getDatabase(app);
 	
-		// Function to fetch data from Firebase
+
 		function fetchData(vehicleNumber) {
-			const distanceRef = ref(db, vehicleNumber + '/totalDistance');
-			onValue(distanceRef, (snapshot) => {
+			console.log(`Fetching data for vehicle number: ${vehicleNumber}`);
+			const vehicleRef = ref(db, `${vehicleNumber}`);
+	
+			onValue(vehicleRef, (snapshot) => {
 				const data = snapshot.val();
-				document.getElementById('distance-' + vehicleNumber).innerText = data + ' km';
+				console.log(`Data for vehicle ${vehicleNumber}:`, data);
+	
+				if (data) {
+					const currentDistanceElem = document.getElementById(`current-distance-${vehicleNumber}`);
+					const targetDistanceElem = document.getElementById(`target-distance-${vehicleNumber}`);
+	
+					if (currentDistanceElem) {
+						currentDistanceElem.innerText = data.totalDistance ? `${data.totalDistance} km` : 'Not available';
+					} else {
+						console.error(`Element with ID current-distance-${vehicleNumber} not found.`);
+					}
+	
+					if (targetDistanceElem) {
+						targetDistanceElem.innerText = data.targetDistance ? `${data.targetDistance} km` : 'Not available';
+					} else {
+						console.error(`Element with ID target-distance-${vehicleNumber} not found.`);
+					}
+				} else {
+					console.error(`No data found for vehicle ${vehicleNumber}`);
+				}
+			}, (error) => {
+				console.error(`Error fetching data for vehicle ${vehicleNumber}:`, error);
 			});
 		}
 	
-		// Fetch data for each vehicle number
+		
 		const vehicleNumbers = JSON.parse('{{ vehicle_numbers | safe }}');
+		console.log('Vehicle numbers:', vehicleNumbers);
 		vehicleNumbers.forEach(fetchData);
 	</script>
+	
+	
 	<!-- end main content -->
 {% endblock content %}
+
+

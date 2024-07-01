@@ -9,7 +9,8 @@ from django.conf import settings
 from django.db.models import Q
 from .firebase_config import db
 from django.http import JsonResponse
-from .firebase_utils import get_current_distance 
+from django.contrib import messages
+from .firebase_utils import get_current_distance, save_target_distance_to_firebase
 from .models import Request, Customer
 import json
 from .forms import TargetDistanceForm, RequestForm, AdminRequestForm, AdminApproveRequestForm
@@ -188,18 +189,19 @@ def admin_add_distance_view(request):
             customer = form.cleaned_data['customer']
             vehicle_no = form.cleaned_data['vehicle_no']
             target_distance = form.cleaned_data['target_distance']
-            request_obj, created = Request.objects.get_or_create(
-                customer=customer,
-                vehicle_no=vehicle_no,
-                defaults={'target_distance': target_distance}
-            )
-            if not created:
-                request_obj.target_distance = target_distance
-                request_obj.save()
+
+            # Define the path to save the target distance under the specific vehicle number
+            vehicle_ref = db.reference(f'{vehicle_no}')
+            
+            # Update the target distance in Firebase
+            vehicle_ref.update({
+                'targetDistance': target_distance
+            })
+
             return redirect('vehicle/admin_view_distance.html')
     else:
         form = TargetDistanceForm()
-    return render(request, 'vehicle/admin_add_distance.html', {'form': form}) 
+    return render(request, 'vehicle/admin_add_distance.html', {'form': form})
 
 
 @login_required(login_url='adminlogin')
