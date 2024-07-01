@@ -211,7 +211,13 @@ def admin_view_distance_view(request):
             request_obj.current_distance = current_distance
             request_obj.save()
 
-    return render(request, 'vehicle/admin_view_distance.html', {'requests': requests})       
+    # Prepare vehicle numbers as a JSON string
+    vehicle_numbers = json.dumps([request_obj.vehicle_no for request_obj in requests])
+
+    return render(request, 'vehicle/admin_view_distance.html', {
+        'requests': requests,
+        'vehicle_numbers': vehicle_numbers
+    })       
 
 
 @login_required(login_url='adminlogin')
