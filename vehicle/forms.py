@@ -102,7 +102,8 @@ class TargetDistanceForm(forms.ModelForm):
     customer=forms.ModelChoiceField(queryset=models.Customer.objects.all(),empty_label="Customer Name",to_field_name='id')
     vehicle_no = forms.IntegerField(label='Vehicle Number')
     target_distance = forms.IntegerField(label='Target Distance')
+    phone_number = forms.CharField(label='Phone Number')
 
     class Meta:
         model = Request
-        fields = ['customer', 'vehicle_no', 'target_distance']
+        fields = ['customer', 'vehicle_no', 'target_distance', 'phone_number']

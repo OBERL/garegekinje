@@ -54,6 +54,7 @@ class Request(models.Model):
 
     current_distance = models.PositiveIntegerField(default=0)
     target_distance = models.PositiveIntegerField(null=True, blank=True)
+    phone_number = models.CharField(max_length=20,null=True)
 
     def __str__(self):
         return self.problem_description

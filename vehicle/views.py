@@ -189,6 +189,7 @@ def admin_add_distance_view(request):
             customer = form.cleaned_data['customer']
             vehicle_no = form.cleaned_data['vehicle_no']
             target_distance = form.cleaned_data['target_distance']
+            phone_number = form.cleaned_data['phone_number']
 
             # Define the path to save the target distance under the specific vehicle number
             vehicle_ref = db.reference(f'{vehicle_no}')
@@ -196,6 +197,10 @@ def admin_add_distance_view(request):
             # Update the target distance in Firebase
             vehicle_ref.update({
                 'targetDistance': target_distance
+            })
+
+            vehicle_ref.update({
+                'mobilePhone': phone_number
             })
 
             return redirect('vehicle/admin_view_distance.html')

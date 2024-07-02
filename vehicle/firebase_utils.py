@@ -12,3 +12,7 @@ def get_current_distance(request_id):
 def save_target_distance_to_firebase(vehicle_no, target_distance):
     ref = db.reference(f'vehicles/{vehicle_no}/targetDistance')
     ref.set(target_distance)
+
+def save_mobile_phone_to_firebase(vehicle_no, phone_number):
+    ref = db.reference(f'vehicles/{vehicle_no}/phoneNumber')
+    ref.set(phone_number)
