@@ -472,6 +472,17 @@ def admin_view_service_cost_view(request):
 
 
 @login_required(login_url='adminlogin')
+def invoice_detail_view(request):
+    enquiry=models.Request.objects.all().order_by('-id')
+    customers=[]
+    for enq in enquiry:
+        customer=models.Customer.objects.get(id=enq.customer_id)
+        customers.append(customer)
+    print(customers)
+    return render(request,'vehicle/invoice_detail.html',{'data':zip(customers,enquiry)})
+
+
+@login_required(login_url='adminlogin')
 def update_cost_view(request,pk):
     updateCostForm=forms.UpdateCostForm()
     if request.method=='POST':

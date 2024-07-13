@@ -46,6 +46,7 @@ urlpatterns = [
     path('approve-request/<int:pk>', views.approve_request_view,name='approve-request'),
     
     path('admin-view-service-cost',views.admin_view_service_cost_view,name='admin-view-service-cost'),
+    path('invoice-detail',views.invoice_detail_view,name='invoice-detail'),
     path('update-cost/<int:pk>', views.update_cost_view,name='update-cost'),
 
     path('admin-mechanic', views.admin_mechanic_view,name='admin-mechanic'),
